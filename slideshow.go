@@ -4,7 +4,7 @@ type Slideshow struct {
 	Id                uint32 `xml:"ID"`
 	Title             string `xml:"Title"`
 	Description       string `xml:"Description"`
-    Username          string `xml:"Username"`
+	Username          string `xml:"Username"`
 	Status            uint8  `xml:"Status"`
 	Url               string `xml:"URL"`
 	ThumbnailUrl      string `xml:"ThumbnailURL"`
@@ -22,5 +22,5 @@ type Slideshow struct {
 }
 
 type Slideshows struct {
-    Values []Slideshow `xml:"Slideshow"`
+	Values []Slideshow `xml:"Slideshow"`
 }

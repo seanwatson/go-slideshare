@@ -6,5 +6,5 @@ type Tag struct {
 }
 
 type Tags struct {
-    Values []Tag `xml:"tag"`
+	Values []Tag `xml:"tag"`
 }

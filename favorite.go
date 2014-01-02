@@ -6,7 +6,7 @@ type Favorite struct {
 }
 
 type Favorites struct {
-    Values []Favorite `xml:"favorite"`
+	Values []Favorite `xml:"favorite"`
 }
 
 type AddFavoriteResponse struct {
