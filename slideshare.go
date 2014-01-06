@@ -2,6 +2,8 @@
 //TODO: tests
 //TODO: check api errors, make real errors
 //TODO: add good params
+//TODO: logging
+//TODO: examples
 
 package slideshare
 
@@ -18,14 +20,14 @@ import (
 	"time"
 )
 
-const baseUrl = "https://www.slideshare.net/api/2/"
+var baseUrl = "https://www.slideshare.net/api/2"
 
 func parseFromHttpResponse(resp *http.Response, container interface{}) error {
 	//TODO: check the HEAD
 	responseBody, err := ioutil.ReadAll(resp.Body)
 	resp.Body.Close()
 	if err != nil {
-	    return err
+		return err
 	}
 	return xml.Unmarshal([]byte(responseBody), container)
 }
@@ -38,7 +40,7 @@ type SlideShare struct {
 func (s *SlideShare) getUrl(method string, args map[string]string) string {
 	values := url.Values{}
 	for k, v := range args {
-	    values.Set(k, v)
+		values.Set(k, v)
 	}
 	values.Set("api_key", s.ApiKey)
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
@@ -46,31 +48,33 @@ func (s *SlideShare) getUrl(method string, args map[string]string) string {
 	hash := sha1.New()
 	io.WriteString(hash, s.SharedSecret+timestamp)
 	values.Set("hash", fmt.Sprintf("%x", hash.Sum(nil)))
-	return baseUrl + method + "?" + values.Encode()
+	return baseUrl + "/" + method + "?" + values.Encode()
 }
 
 func (s *SlideShare) GetSlideshow(id int) (Slideshow, error) {
 	args := map[string]string{
-	    "slideshow_id": strconv.ItoA(id),
+		"slideshow_id": strconv.Itoa(id),
 	}
 	url := s.getUrl("get_slideshow", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return Slideshow{}, err
+		return Slideshow{}, err
 	}
 	slideshow := Slideshow{}
 	err = parseFromHttpResponse(resp, &slideshow)
 	return slideshow, err
 }
 
-func (s *SlideShare) GetSlideshowsByTag(tag string) ([]Slideshow, error) {
+func (s *SlideShare) GetSlideshowsByTag(tag string, limit int, offset int) ([]Slideshow, error) {
 	args := map[string]string{
-	    "tag": tag,
+		"tag":    tag,
+		"limit":  strconv.Itoa(limit),
+		"offset": strconv.Itoa(offset),
 	}
 	url := s.getUrl("get_slideshows_by_tag", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Slideshow{}, err
+		return []Slideshow{}, err
 	}
 	slideshows := Slideshows{}
 	err = parseFromHttpResponse(resp, &slideshows)
@@ -79,12 +83,12 @@ func (s *SlideShare) GetSlideshowsByTag(tag string) ([]Slideshow, error) {
 
 func (s *SlideShare) GetSlideshowsByGroup(groupName string) ([]Slideshow, error) {
 	args := map[string]string{
-	    "group_name": groupName,
+		"group_name": groupName,
 	}
 	url := s.getUrl("get_slideshows_by_group", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Slideshow{}, err
+		return []Slideshow{}, err
 	}
 	slideshows := Slideshows{}
 	err = parseFromHttpResponse(resp, &slideshows)
@@ -93,12 +97,12 @@ func (s *SlideShare) GetSlideshowsByGroup(groupName string) ([]Slideshow, error)
 
 func (s *SlideShare) GetSlideshowsByUser(usernameFor string) ([]Slideshow, error) {
 	args := map[string]string{
-	    "username_for": usernameFor,
+		"username_for": usernameFor,
 	}
 	url := s.getUrl("get_slideshows_by_tag", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Slideshow{}, err
+		return []Slideshow{}, err
 	}
 	slideshows := Slideshows{}
 	err = parseFromHttpResponse(resp, &slideshows)
@@ -107,12 +111,12 @@ func (s *SlideShare) GetSlideshowsByUser(usernameFor string) ([]Slideshow, error
 
 func (s *SlideShare) SearchSlideshows(q string) ([]Slideshow, error) {
 	args := map[string]string{
-	    "q": q,
+		"q": q,
 	}
 	url := s.getUrl("search_slideshows", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Slideshow{}, err
+		return []Slideshow{}, err
 	}
 	slideshows := Slideshows{}
 	err = parseFromHttpResponse(resp, &slideshows)
@@ -165,12 +169,12 @@ func (s *SlideShare) UploadSlideshow(username, password, slideshowTitle, uploadU
 
 func (s *SlideShare) GetUserGroups(usernameFor string) ([]Group, error) {
 	args := map[string]string{
-	    "username_for": usernameFor,
+		"username_for": usernameFor,
 	}
 	url := s.getUrl("get_user_groups", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Group{}, err
+		return []Group{}, err
 	}
 	groups := Groups{}
 	err = parseFromHttpResponse(resp, &groups)
@@ -179,12 +183,12 @@ func (s *SlideShare) GetUserGroups(usernameFor string) ([]Group, error) {
 
 func (s *SlideShare) GetUserFavorites(usernameFor string) ([]Favorite, error) {
 	args := map[string]string{
-	    "username_for": usernameFor,
+		"username_for": usernameFor,
 	}
 	url := s.getUrl("get_user_favorites", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Favorite{}, err
+		return []Favorite{}, err
 	}
 	favorites := Favorites{}
 	err = parseFromHttpResponse(resp, &favorites)
@@ -193,14 +197,14 @@ func (s *SlideShare) GetUserFavorites(usernameFor string) ([]Favorite, error) {
 
 func (s *SlideShare) GetUserContacts(usernameFor string, limit int, offset int) ([]Contact, error) {
 	args := map[string]string{
-	    "username_for": usernameFor,
-	    "limit":        strconv.Itoa(limit),
-	    "offset":       strconv.Itoa(offset),
+		"username_for": usernameFor,
+		"limit":        strconv.Itoa(limit),
+		"offset":       strconv.Itoa(offset),
 	}
 	url := s.getUrl("get_user_contacts", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Contact{}, err
+		return []Contact{}, err
 	}
 	contacts := Contacts{}
 	err = parseFromHttpResponse(resp, &contacts)
@@ -209,13 +213,13 @@ func (s *SlideShare) GetUserContacts(usernameFor string, limit int, offset int) 
 
 func (s *SlideShare) GetUserTags(username, password string) ([]Tag, error) {
 	args := map[string]string{
-	    "username": username,
-	    "password": password,
+		"username": username,
+		"password": password,
 	}
 	url := s.getUrl("get_user_tags", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return []Tag{}, err
+		return []Tag{}, err
 	}
 	tags := Tags{}
 	err = parseFromHttpResponse(resp, &tags)
@@ -224,36 +228,36 @@ func (s *SlideShare) GetUserTags(username, password string) ([]Tag, error) {
 
 func (s *SlideShare) AddFavorite(username string, password string, slideshowId int) error {
 	args := map[string]string{
-	    "username":     username,
-	    "password":     password,
-	    "slideshow_id": strconv.Itoa(slideshowId),
+		"username":     username,
+		"password":     password,
+		"slideshow_id": strconv.Itoa(slideshowId),
 	}
 	url := s.getUrl("add_favorite", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return err
+		return err
 	}
 	addFavoriteResponse := AddFavoriteResponse{}
 	err = parseFromHttpResponse(resp, &addFavoriteResponse)
 	if err != nil {
-	    return err
+		return err
 	}
 	if addFavoriteResponse.SlideshowId == 0 {
-	    return errors.New("Could not add favorite")
+		return errors.New("Could not add favorite")
 	}
 	return nil
 }
 
 func (s *SlideShare) CheckFavorite(username string, password string, slideshowId int) (bool, error) {
 	args := map[string]string{
-	    "username":     username,
-	    "password":     password,
-	    "slideshow_id": strconv.Itoa(slideshowId),
+		"username":     username,
+		"password":     password,
+		"slideshow_id": strconv.Itoa(slideshowId),
 	}
 	url := s.getUrl("check_favorite", args)
 	resp, err := http.Get(url)
 	if err != nil {
-	    return false, err
+		return false, err
 	}
 	checkFavoriteResponse := CheckFavoriteResponse{}
 	err = parseFromHttpResponse(resp, &checkFavoriteResponse)
