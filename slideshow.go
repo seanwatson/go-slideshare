@@ -57,15 +57,15 @@ type Slideshows struct {
 
 // Used to check if a call to EditSlideshow responded succesfully.
 type EditSlideshowResponse struct {
-	edited uint32 `xml:"slideshowid"`
+	Edited uint32 `xml:"slideshowid"`
 }
 
 // Used to check if a call to DeleteSlideshow responded succesfully.
 type DeleteSlideshowResponse struct {
-	deleted uint32 `xml:"slideshowid"`
+	Deleted uint32 `xml:"slideshowid"`
 }
 
 // Used to check if a call to UploadSlideshow responded succesfully.
 type UploadSlideshowResponse struct {
-	uploaded uint32 `xml:"slideshowid"`
+	Uploaded uint32 `xml:"slideshowid"`
 }

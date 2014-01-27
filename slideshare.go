@@ -29,6 +29,7 @@
 //TODO: check api errors, make real errors
 //TODO: examples
 
+// Package slideshare simplifies making calls to SlideShare.net's API.
 package slideshare
 
 import (
@@ -284,7 +285,7 @@ func (s *SlideShare) EditSlideshow(username, password, slideshowId string,
 	if err != nil {
 		return err
 	}
-	if editSlideshowResponse.edited == 0 {
+	if editSlideshowResponse.Edited == 0 {
 		return errors.New("Slideshow was not edited.")
 	}
 	return nil
@@ -312,7 +313,7 @@ func (s *SlideShare) DeleteSlideshow(username, password, slideshowId string) err
 	if err != nil {
 		return err
 	}
-	if deleteSlideshowResponse.deleted == 0 {
+	if deleteSlideshowResponse.Deleted == 0 {
 		return errors.New("Slideshow was not deleted.")
 	}
 	return nil
@@ -356,7 +357,7 @@ func (s *SlideShare) UploadSlideshow(username, password, slideshowTitle,
 	if err != nil {
 		return err
 	}
-	if uploadSlideshowResponse.uploaded == 0 {
+	if uploadSlideshowResponse.Uploaded == 0 {
 		return errors.New("Could not upload slideshow.")
 	}
 	return nil
