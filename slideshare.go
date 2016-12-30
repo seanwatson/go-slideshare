@@ -200,7 +200,7 @@ func (s *SlideShare) GetSlideshowsByUser(usernameFor string,
 			args[k] = v
 		}
 	}
-	url := s.getUrl("get_slideshows_by_tag", args)
+	url := s.getUrl("get_slideshows_by_user", args)
 	resp, err := http.Get(url)
 	if err != nil {
 		return []Slideshow{}, err
